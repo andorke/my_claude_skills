@@ -1,7 +1,7 @@
 ---
-description: "Sync Claude Code config (~/.claude/) to GitHub. Use proactively after any session where tracked files were modified — settings.json, CLAUDE.md, statusline.sh, or anything in commands/, skills/, agents/."
+description: "Sync Claude Code config (~/.claude/) to its remote git repository. Use proactively after any session where tracked files were modified — settings.json, CLAUDE.md, statusline.sh, or anything in commands/, skills/, agents/."
 ---
-Sync the Claude Code configuration directory (`~/.claude/`) with its remote git repository.
+Sync the Claude Code configuration directory (`~/.claude/`) with its remote git repository (GitHub, GitLab, Bitbucket, self-hosted — any git remote).
 
 ## Steps
 
@@ -13,10 +13,11 @@ Sync the Claude Code configuration directory (`~/.claude/`) with its remote git 
    - Run `git -C ~/.claude diff` to understand what changed.
    - Stage all changes: `git -C ~/.claude add -A`
    - Generate a concise commit message in English summarizing what changed (e.g. "Update settings.json: add new statusline config" or "Add new skill: my-skill").
+   - Detect the remote and branch: `git -C ~/.claude remote` and `git -C ~/.claude branch --show-current`
    - Commit and push:
      ```
      git -C ~/.claude commit -m "<message>"
-     git -C ~/.claude push origin main
+     git -C ~/.claude push <remote> <branch>
      ```
    - Confirm to the user what was synced.
 
@@ -25,6 +26,7 @@ Sync the Claude Code configuration directory (`~/.claude/`) with its remote git 
 - The `.gitignore` controls what gets tracked. Do NOT manually exclude files — trust the `.gitignore`.
 - Do NOT commit `settings.local.json` (it's already in `.gitignore`).
 - Keep commit messages short and descriptive — focus on what changed, not why.
-- If push fails (e.g. remote is ahead), run `git -C ~/.claude pull --rebase origin main` first, then push again.
+- If push fails (e.g. remote is ahead), run `git -C ~/.claude pull --rebase <remote> <branch>` first, then push again.
+- Do NOT hardcode `origin` or `main` — always detect the actual remote name and branch from the repo.
 
 $@
