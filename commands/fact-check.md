@@ -1,0 +1,1 @@
+../skills/visual-explainer/prompts/fact-check.md

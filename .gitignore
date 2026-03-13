@@ -1,0 +1,24 @@
+# Ignore everything by default
+*
+
+# Config files
+!.gitignore
+!CLAUDE.md
+!settings.json
+!statusline.sh
+
+# Skills
+!skills/
+!skills/**
+
+# Commands (skill definitions)
+!commands/
+!commands/**
+
+# Agents
+!agents/
+!agents/**
+
+# Ignore machine-specific and ephemeral data
+settings.local.json
+.DS_Store
