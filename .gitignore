@@ -3,6 +3,7 @@
 
 # Config files
 !.gitignore
+!README.md
 !CLAUDE.md
 !settings.json
 !statusline.sh
