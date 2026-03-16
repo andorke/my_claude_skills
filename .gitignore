@@ -20,6 +20,14 @@
 !agents/
 !agents/**
 
+# Scripts
+!scripts/
+!scripts/**
+
+# Sounds
+!sounds/
+!sounds/**
+
 # Ignore machine-specific and ephemeral data
 settings.local.json
 .DS_Store
