@@ -1,9 +1,22 @@
 {
-  "language": "Русский",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay -v 1 ~/.claude/sounds/stop-hook.mp3"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash \"$HOME/.claude/statusline.sh\""
   },
+  "language": "Русский",
   "spinnerVerbs": {
     "mode": "replace",
     "verbs": [
@@ -106,19 +119,6 @@
       "Тема зашла",
       "Чаёк-кофеёк?",
       "Занятость полная"
-    ]
-  },
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "afplay -v 1 ~/.claude/sounds/stop-hook.mp3"
-          }
-        ]
-      }
     ]
   }
 }
