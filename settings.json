@@ -125,5 +125,6 @@
       "Занятость полная",
       "Тестирую хуки"
     ]
-  }
+  },
+  "skipDangerousModePermissionPrompt": true
 }
