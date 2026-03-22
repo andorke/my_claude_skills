@@ -126,5 +126,8 @@
       "Тестирую хуки"
     ]
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "enabledPlugins": {
+    "telegram@claude-plugins-official": true
+  }
 }
