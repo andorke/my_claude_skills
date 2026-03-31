@@ -131,7 +131,5 @@
     "telegram@claude-plugins-official": true
   },
   "env": {
-    "HTTPS_PROXY": "http://80.76.35.208:3128",
-    "HTTP_PROXY": "http://80.76.35.208:3128"
   }
 }
