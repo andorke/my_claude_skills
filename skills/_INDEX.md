@@ -38,12 +38,11 @@ Master catalog of all installed skills in `~/.claude/skills/`.
 | `sdx-project-kickoff` | Initialize spec-driven project from concept doc: repo structure, OpenSpec config, tech stack scaffolding, testing | Starting a new project, bootstrapping a codebase from design docs |
 | `sdx-commit` | Analyze git diff, group by logical change, create conventional commits for each group | Organizing staged changes into atomic, structured commits |
 
-## Architecture & Workflow (2 skills)
+## Architecture & Workflow (1 skill)
 
 | Skill | Description | Use when |
 |-------|-------------|----------|
 | `claude-architect-guidelines` | Claude Certified Architect best practices: agent architecture, tool design, MCP integration, prompt engineering, context management | Designing agents, configuring Claude Code, writing prompts, making architectural decisions |
-| `repo-task-proof-loop` | Repo-local workflow for large tasks: spec-freeze, build, evidence, verify, fix loop with fresh-session verification | Large coding tasks requiring structured multi-step workflow with subagents |
 
 ## Visualization (1 skill)
 
@@ -60,7 +59,7 @@ Master catalog of all installed skills in `~/.claude/skills/`.
 
 ---
 
-**Total: 21 skills across 7 categories**
+**Total: 20 skills across 7 categories**
 
 Commands:
 - `/skills` — recommendations for current project
