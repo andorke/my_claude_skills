@@ -2,7 +2,7 @@
 description: Install base skill set into the current project from ~/.claude/project-kit.json
 ---
 
-Install the standard skill set into the current project's `.claude/skills/` directory, verify the Superpowers plugin is available, write OpenSpec + Superpowers composition rules to `AGENTS.md`, and scaffold the core project docs (`AGENTS.md`, `CONTEXT.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `ARCHITECTURE.md`).
+Install the standard skill set into the current project's `.claude/skills/` directory, verify the Superpowers plugin is available, write OpenSpec + Superpowers composition rules to `AGENTS.md`, scaffold the core project docs (`AGENTS.md`, `DEVELOPMENT.md`, `CONTEXT.md`, `ROADMAP.md`, `REQUIREMENTS.md`, `ARCHITECTURE.md`), and copy filled-in example docs from `~/.claude/templates/project-docs/` into `<project>/example_docs/`.
 
 Read the manifest at `~/.claude/project-kit.json` to get the list of skills to install.
 
@@ -45,6 +45,8 @@ The goal: every project should have an explicit rule block that tells the agent 
 
 **Why AGENTS.md and not CLAUDE.md:** `AGENTS.md` is the cross-agent convention used by OpenSpec and Superpowers. Claude Code still auto-loads `CLAUDE.md`, so we also write a thin proxy `CLAUDE.md` that points to `AGENTS.md` (see Step 6).
 
+**Language:** the managed block narrative is in Russian because the user prefers it. Skill identifiers (`brainstorming`, `writing-plans`, `test-driven-development`, etc.) stay in English as they are code references.
+
 **Behavior for AGENTS.md:**
 - If `AGENTS.md` does not exist — create it using the full template below (header + managed block).
 - If `AGENTS.md` exists and contains the managed marker `<!-- BEGIN openspec-superpowers-composition -->` — replace the block between `BEGIN` and `END` markers in place. Preserve all other content.
@@ -54,80 +56,85 @@ The goal: every project should have an explicit rule block that tells the agent 
 
 ```markdown
 <!-- BEGIN openspec-superpowers-composition -->
-## Project workflow: OpenSpec + Superpowers
+## Рабочий процесс проекта: OpenSpec + Superpowers
 
-This project uses OpenSpec for persistent planning and Superpowers for execution methodology. They are independent systems; these rules explicitly compose them.
+Проект использует **OpenSpec** для персистентного планирования и **Superpowers** для методологии исполнения. Это независимые системы — правила ниже явно их композируют.
 
-### Reading order for new agents
-Read these files in order before doing anything else:
-1. `AGENTS.md` — this file. Entry point, rules, glossary.
-2. `DEVELOPMENT.md` — tech stack, repo structure, coding patterns, local run.
-3. `CONTEXT.md` — current status, recent decisions, "what's done" log.
-4. `ROADMAP.md` — phases and milestones.
-5. `ARCHITECTURE.md` — C4 diagrams, API contracts, key architectural decisions.
+### Порядок чтения для новых агентов
+Прежде чем что-либо делать, прочитай эти файлы в следующем порядке:
+1. `AGENTS.md` — этот файл. Точка входа, правила, глоссарий.
+2. `DEVELOPMENT.md` — стек, структура репозитория, паттерны кода, локальный запуск.
+3. `CONTEXT.md` — текущий статус, последние решения, журнал «что сделано».
+4. `ROADMAP.md` — фазы и чекпойнты.
+5. `REQUIREMENTS.md` — функциональные и нефункциональные требования.
+6. `ARCHITECTURE.md` — C4-диаграммы, API-контракты, ключевые архитектурные решения.
 
-### Roles
-- **OpenSpec** owns persistent planning for individual changes: `proposal.md`, `design.md`, `tasks.md`, and `archive/`. Source of truth for WHAT we build and WHY at the change level.
-- **Superpowers** owns execution methodology: TDD, systematic debugging, code review, git worktrees, subagent dispatch. Source of truth for HOW we build.
-- **Project docs** (`AGENTS.md`, `CONTEXT.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `ARCHITECTURE.md`) own global, long-lived project context. OpenSpec operates at change scope, these files operate at project scope.
+### Роли
+- **OpenSpec** владеет персистентным планированием отдельных изменений: `proposal.md`, `design.md`, `tasks.md`, `archive/`. Источник истины для того, ЧТО мы строим и ЗАЧЕМ, на уровне одной фичи.
+- **Superpowers** владеет методологией исполнения: TDD, systematic debugging, code review, git worktrees, subagent dispatch. Источник истины для того, КАК мы строим.
+- **Документы проекта** (`AGENTS.md`, `CONTEXT.md`, `DEVELOPMENT.md`, `ROADMAP.md`, `REQUIREMENTS.md`, `ARCHITECTURE.md`) владеют глобальным, долгоживущим контекстом проекта. OpenSpec работает в scope одного изменения, эти файлы — в scope всего проекта.
 
-### Per-feature flow
-1. `brainstorming` (Superpowers) — clarify the idea in chat. No persistent file.
-2. `/opsx:propose <name>` — OpenSpec generates `proposal.md`, `design.md`, `tasks.md`. Review and edit by hand before proceeding.
-3. `/opsx:apply <name>` — implement tasks. During apply, the rules below are mandatory.
-4. Final code review (Superpowers `requesting-code-review`) on the full change.
-5. `/opsx:archive <name>` — only after all tests pass and the code review is resolved.
-6. After archive — update `CONTEXT.md` ("what's done" log) and flip the matching checkbox in `ROADMAP.md` if the change closed a planned item.
+### Поток на одну фичу
+1. `brainstorming` (Superpowers) — уточнить идею в чате. Без персистентного файла.
+2. `/opsx:propose <name>` — OpenSpec генерирует `proposal.md`, `design.md`, `tasks.md`. Просмотри и отредактируй руками перед следующим шагом.
+3. `/opsx:apply <name>` — реализация задач. Во время apply правила ниже — обязательные.
+4. Финальный code review через Superpowers `requesting-code-review` на всё изменение.
+5. `/opsx:archive <name>` — только после того как все тесты зелёные и code review закрыт.
+6. После archive — обнови `CONTEXT.md` (журнал «что сделано») и, если change закрыл запланированный пункт, переключи соответствующий чекбокс в `ROADMAP.md`.
 
-### Mandatory rules during /opsx:apply
-1. Each task in `tasks.md` is implemented via **test-driven-development**: RED (failing test) → GREEN (minimal code) → REFACTOR. No code without a failing test first.
-2. Before flipping `- [ ]` → `- [x]` on a task, run **verification-before-completion** as an internal sanity check.
-3. Use **systematic-debugging** when a test fails for a non-obvious reason. Do not guess.
-4. For independent sub-tasks that can run in parallel, use **dispatching-parallel-agents**.
-5. Use **using-git-worktrees** for isolated branches when a change touches many files or risks conflicting edits.
-6. Before `/opsx:archive`, mandatory **requesting-code-review** on the full change.
+### Обязательные правила во время /opsx:apply
+1. Каждая задача в `tasks.md` реализуется через **test-driven-development**: RED (failing test) → GREEN (минимальный код) → REFACTOR. Не пишем код без сначала failing теста.
+2. Перед тем как переключить `- [ ]` → `- [x]` на задаче, запусти **verification-before-completion** как внутреннюю само-проверку.
+3. Используй **systematic-debugging**, когда тест падает по неочевидной причине. Не гадай.
+4. Для независимых подзадач, которые можно запускать параллельно, используй **dispatching-parallel-agents**.
+5. Используй **using-git-worktrees** для изолированных веток, когда изменение трогает много файлов или есть риск конфликта редактирований.
+6. Перед `/opsx:archive` — обязательный **requesting-code-review** на всё изменение.
 
-### Filling project docs with Superpowers
-The five project docs are scaffolds with TODO sections when the project starts. Fill them iteratively — do not try to write 1000 lines on day one.
+### Заполнение документов проекта через Superpowers
+Шесть файлов в корне проекта (`AGENTS.md`, `DEVELOPMENT.md`, `CONTEXT.md`, `ROADMAP.md`, `REQUIREMENTS.md`, `ARCHITECTURE.md`) создаются как скелеты с секциями и `TODO`-плейсхолдерами. Заполняй их итеративно — не пытайся написать 1000 строк в первый день.
 
-- Use Superpowers **`brainstorming`** to interrogate the user and extract the information needed for any section marked `TODO`. Ask one focused question at a time. Do not invent content.
-- Use Superpowers **`writing-plans`** to turn a decided scope into `ROADMAP.md` phases. Keep phases coarse — sub-tasks live in OpenSpec changes, not in `ROADMAP.md`.
-- Update `CONTEXT.md` after each significant decision or completed change. This file is a log, not a spec — append, do not rewrite.
-- Update `ARCHITECTURE.md` only when a decision is made. Keep it factual, not aspirational. C4 diagrams optional early; start with a prose description of components and boundaries.
-- `DEVELOPMENT.md` is locked in once per tech-stack choice. Update it when the stack, structure, or coding patterns change, not per-feature.
+- В папке `example_docs/` лежат **заполненные примеры** тех же файлов для вымышленного проекта NoteHub. Это референс структуры и детализации, **не шаблон для копирования содержимого**. Перед заполнением соответствующего скелета — прочитай его пример из `example_docs/`.
+- Используй Superpowers **`brainstorming`**, чтобы задавать пользователю уточняющие вопросы и извлекать информацию для любой `TODO`-секции. По одному сфокусированному вопросу за раз. Не выдумывай контент.
+- Используй Superpowers **`writing-plans`** только для превращения решённого scope в фазы `ROADMAP.md`. Фазы должны быть крупными — детальные подзадачи живут в OpenSpec changes, не в `ROADMAP.md`.
+- Обновляй `CONTEXT.md` после каждого значимого решения или завершённого change. Это журнал, а не спека — добавляй записи сверху, не переписывай историю.
+- Обновляй `ARCHITECTURE.md` только когда принято решение. Держи его фактическим, не aspirational. C4-диаграммы опциональны на старте; начни с прозы об компонентах и границах.
+- `DEVELOPMENT.md` фиксируется один раз на выбор стека. Обновляй только при смене стека, структуры или паттернов кода — не per-feature.
+- `REQUIREMENTS.md` — зафиксированные функциональные (FR) и нефункциональные (NFR) требования. Обновляй при добавлении / удалении / изменении требований, не при реализации.
 
-### Boundaries (what NOT to do)
-- Do **not** use Superpowers `writing-plans` for feature-level planning when an OpenSpec change is active. `tasks.md` is the authoritative per-feature plan. `writing-plans` is only for `ROADMAP.md` high-level phases.
-- Do **not** run Superpowers `brainstorming` during `/opsx:apply`. Brainstorming is a pre-propose phase only.
-- Do **not** create parallel planning docs inside `openspec/changes/<name>/`. OpenSpec artifacts are the single source of truth for the plan.
-- Do **not** run `/opsx:archive` if any task in `tasks.md` is unchecked, tests are failing, or the code review is unresolved.
-- Do **not** use OpenSpec for tasks under ~30 minutes of work. For trivial fixes, use Superpowers directly without a change.
-- Do **not** duplicate content across `AGENTS.md` / `CONTEXT.md` / `ARCHITECTURE.md`. Each file owns its scope; cross-link instead of copying.
+### Границы (что НЕ делать)
+- **Не** используй Superpowers `writing-plans` для планирования на уровне фичи, когда активен OpenSpec change. `tasks.md` — авторитетный план фичи. `writing-plans` — только для высокоуровневых фаз `ROADMAP.md`.
+- **Не** запускай Superpowers `brainstorming` во время `/opsx:apply`. Brainstorming — это фаза до `/opsx:propose`.
+- **Не** создавай параллельные планирующие доки внутри `openspec/changes/<name>/`. OpenSpec-артефакты — единственный источник плана.
+- **Не** запускай `/opsx:archive`, если хотя бы одна задача в `tasks.md` не отмечена, тесты падают или code review не закрыт.
+- **Не** используй OpenSpec для задач короче ~30 минут. Для тривиальных правок — Superpowers напрямую, без change.
+- **Не** дублируй контент между `AGENTS.md` / `CONTEXT.md` / `ARCHITECTURE.md` / `REQUIREMENTS.md`. Каждый файл владеет своим scope; вместо копирования делай перекрёстные ссылки.
+- **Не** копируй содержимое из `example_docs/` в скелеты. Примеры — про структуру, не про контент.
 
-### Version drift note
-Superpowers ≥ v5 has started adding its own spec/plan generation skills. These overlap with OpenSpec. If you upgrade Superpowers and observe duplicated planning artifacts, re-read this block and disable the overlapping Superpowers skill for this project.
+### Заметка про version drift
+Superpowers ≥ v5 начал добавлять собственные скиллы генерации spec/plan документов. Они пересекаются с OpenSpec. Если после обновления Superpowers ты видишь дублирующиеся планирующие артефакты — перечитай этот блок и отключи конфликтующий Superpowers-скилл для этого проекта.
 <!-- END openspec-superpowers-composition -->
 ```
 
-**AGENTS.md header (written only when the file is being newly created — do not overwrite an existing header):**
+**AGENTS.md header (только при создании нового файла — не перезаписывать существующий header):**
 
 ```markdown
 # {{PROJECT_NAME}}
 
-> Entry point for coding agents. Read this file first.
+> Точка входа для coding-агентов. Прочитай этот файл первым.
 
-## What this project is
-TODO — one paragraph: what the project does, who it is for, what stage it is in.
+## Что это за проект
+TODO — один абзац: что делает проект, для кого он, на какой стадии находится.
 
-## Reading order
-1. `AGENTS.md` (this file)
+## Порядок чтения
+1. `AGENTS.md` (этот файл)
 2. `DEVELOPMENT.md`
 3. `CONTEXT.md`
 4. `ROADMAP.md`
-5. `ARCHITECTURE.md`
+5. `REQUIREMENTS.md`
+6. `ARCHITECTURE.md`
 
-## Glossary
-TODO — domain terms that a new agent would not know.
+## Глоссарий
+TODO — термины предметной области, которые незнакомы новому агенту.
 
 ```
 
@@ -135,76 +142,80 @@ Replace `{{PROJECT_NAME}}` with the current directory's basename.
 
 ### 6. Scaffold core project docs
 
-Create the remaining four files **only if they do not already exist**. Never overwrite existing content — if a file is already present, skip it and report "skipped (exists)".
+Create the remaining files **only if they do not already exist**. Never overwrite existing content — if a file is already present, skip it and report "skipped (exists)".
 
-Each file is a short scaffold with clearly-labelled `TODO` sections. It is **not** supposed to be comprehensive at creation time. Superpowers `brainstorming` and `writing-plans` fill these in iteratively as the project evolves.
+Each file is a short scaffold with clearly-labelled `TODO` sections in **Russian**. It is **not** supposed to be comprehensive at creation time. Superpowers `brainstorming` fills these in iteratively, using the filled-in examples from `example_docs/` (copied in Step 7) as structural references.
 
 **Also write a thin proxy `CLAUDE.md`** at the project root so Claude Code's auto-load still finds the rules. If `CLAUDE.md` already exists, leave it untouched and only report.
 
 #### CLAUDE.md (proxy, only if missing)
 
 ```markdown
-# Project rules live in AGENTS.md
+# Правила проекта лежат в AGENTS.md
 
-See `./AGENTS.md` for the full agent entry point, reading order, and the OpenSpec + Superpowers composition rules.
+См. `./AGENTS.md` — полная точка входа для агента, порядок чтения и правила композиции OpenSpec + Superpowers.
 ```
 
 #### DEVELOPMENT.md (only if missing)
 
 ```markdown
-# Development rules
+# Правила разработки
 
-> Read this before writing code.
+> Прочитай перед началом работы.
 
-## Tech stack
-TODO — language versions, frameworks, databases, key libraries.
+> **Пример заполнения:** `example_docs/DEVELOPMENT.md`
 
-## Repository structure
-TODO — directory tree with 1-line descriptions per top-level folder.
+## Технологический стек
+TODO — версии языков, фреймворки, базы данных, ключевые библиотеки.
 
-## Local run
-TODO — commands to install, build, test, run. Include ports, env vars, docker-compose if any.
+## Структура репозитория
+TODO — дерево директорий с однострочными описаниями каждой папки верхнего уровня.
 
-## Coding patterns
-TODO — architectural style (e.g. Clean Architecture, hexagonal, MVC), dependency rules, naming conventions, error handling.
+## Локальный запуск
+TODO — команды установки, сборки, тестов, запуска. Порты, переменные окружения, docker-compose если есть.
 
-## Testing strategy
-TODO — unit / integration / e2e split, tools, coverage target, where tests live.
+## Паттерны кода
+TODO — архитектурный стиль (например Clean Architecture, hexagonal, MVC), правила зависимостей, naming conventions, обработка ошибок.
 
-## Style and tooling
-TODO — linter, formatter, pre-commit hooks, commit message convention.
+## Стратегия тестирования
+TODO — unit / integration / e2e split, инструменты, целевое покрытие, где живут тесты.
+
+## Стиль и тулинг
+TODO — линтер, форматтер, pre-commit hooks, convention коммитов.
 ```
 
 #### CONTEXT.md (only if missing)
 
 ```markdown
-# Project context
+# Контекст проекта
 
-## Current status
-- **Phase:** TODO
-- **Last updated:** {{TODAY}}
+> **Пример заполнения:** `example_docs/CONTEXT.md`
 
-## What is done
-| Date | What was done |
-|------|---------------|
-| {{TODAY}} | Project scaffolded via /setup-project |
+## Текущий статус
+- **Этап:** TODO
+- **Последнее обновление:** {{TODAY}}
 
-> Append new rows at the top. Do not rewrite history.
+## Что сделано
+| Дата | Что сделано |
+|------|-------------|
+| {{TODAY}} | Проект scaffolded через /setup-project |
 
-## Current task
-TODO — one sentence.
+> Новые записи добавляются **сверху**. Не переписывай историю — это журнал, а не спека.
 
-## Key decisions
-| Decision | Choice | Reasoning |
-|----------|--------|-----------|
-| TODO     | TODO   | TODO      |
+## Текущая задача
+TODO — одно предложение.
 
-## Risks
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| TODO | TODO        | TODO   | TODO       |
+## Ключевые архитектурные решения
+| Решение | Выбор | Обоснование |
+|---------|-------|-------------|
+| TODO    | TODO  | TODO        |
 
-## Next steps
+## Риски
+| Риск | Вероятность | Влияние | Митигация |
+|------|-------------|---------|-----------|
+| TODO | TODO        | TODO    | TODO      |
+
+## Следующие шаги
 - [ ] TODO
 ```
 
@@ -213,56 +224,160 @@ Replace `{{TODAY}}` with the current date in `YYYY-MM-DD` format.
 #### ROADMAP.md (only if missing)
 
 ```markdown
-# Roadmap
+# План разработки
 
-> High-level phases. Sub-tasks live in OpenSpec changes, not here.
+> Высокоуровневые фазы. Детальные подзадачи живут в OpenSpec changes, не здесь.
 
-## Phases overview
-| Phase | Name | Status |
-|-------|------|--------|
-| 0 | Project setup | ⏳ In progress |
-| 1 | TODO | ⏸️ Pending |
-| 2 | TODO | ⏸️ Pending |
+> **Пример заполнения:** `example_docs/ROADMAP.md`
 
-## Phase 0: Project setup
-- [x] Repository initialized
-- [x] Docs scaffolded
-- [ ] Tech stack chosen and DEVELOPMENT.md filled in
-- [ ] First feature scoped via /opsx:propose
+## Обзор фаз
+| Фаза | Название | Статус |
+|------|----------|--------|
+| 0    | Настройка проекта | ⏳ В процессе |
+| 1    | TODO     | ⏸️ Ожидает |
+| 2    | TODO     | ⏸️ Ожидает |
 
-## Phase 1: TODO
+## Фаза 0: Настройка проекта
+- [x] Репозиторий инициализирован
+- [x] Документы scaffolded
+- [ ] Стек выбран, `DEVELOPMENT.md` заполнен
+- [ ] Первая фича описана через `/opsx:propose`
+
+## Фаза 1: TODO
 - [ ] TODO
+```
+
+#### REQUIREMENTS.md (only if missing)
+
+```markdown
+# Требования к продукту
+
+> Функциональные (FR) и нефункциональные (NFR) требования.
+
+> **Пример заполнения:** `example_docs/REQUIREMENTS.md`
+
+## Описание продукта
+TODO — один абзац: что это за продукт, какую задачу решает, для кого.
+
+## Бизнес-контекст
+### Целевая аудитория
+TODO
+
+### Критерий успеха MVP
+TODO — список измеримых критериев.
+
+## Функциональные требования
+
+### FR-1: TODO
+- **FR-1.1** TODO
+
+## Нефункциональные требования
+
+### NFR-1: Производительность
+| Метрика | Требование |
+|---------|-----------|
+| TODO    | TODO       |
+
+### NFR-2: Надёжность
+TODO
+
+### NFR-3: Безопасность
+TODO
+
+### NFR-4: Совместимость
+TODO
+
+## Ограничения MVP (out of scope)
+1. TODO
+
+## Глоссарий
+| Термин | Определение |
+|--------|-------------|
+| TODO   | TODO        |
 ```
 
 #### ARCHITECTURE.md (only if missing)
 
 ```markdown
-# Architecture
+# Архитектура
 
-> Global, long-lived architectural decisions. Per-change design lives in `openspec/changes/<name>/design.md`.
+> Глобальные, долгоживущие архитектурные решения. Per-change design живёт в `openspec/changes/<name>/design.md`.
 
-## System overview
-TODO — one paragraph describing the system, its main components, and their boundaries.
+> **Пример заполнения:** `example_docs/ARCHITECTURE.md` (включая C4-диаграммы в Mermaid)
 
-## Components
-TODO — list each component with a one-line description of its responsibility.
+## 1. Обзор системы
+TODO — один абзац, описывающий систему, её основные компоненты и их границы.
 
-## Key interfaces
-TODO — public APIs, message contracts, integration points with external systems.
+## 2. C4 Level 1 — System Context
+TODO — диаграмма контекста системы (Mermaid). Опционально на старте.
 
-## Data model
-TODO — main entities and their relationships. Link to a detailed data model doc if it grows large.
+## 3. Компоненты
+TODO — список каждого компонента с однострочным описанием его ответственности.
 
-## Key decisions
-| Decision | Choice | Reasoning |
-|----------|--------|-----------|
-| TODO     | TODO   | TODO      |
+## 4. Ключевые интерфейсы
+TODO — публичные API, message contracts, точки интеграции с внешними системами.
 
-## C4 diagrams
-TODO — Level 1 (System Context), Level 2 (Containers), Level 3 (Components). Mermaid or image. Optional until the system has at least two components.
+## 5. Модель данных
+TODO — основные сущности и их связи. Вынеси в отдельный файл, если она разрастается.
+
+## 6. Ключевые архитектурные решения
+| Решение | Выбор | Обоснование |
+|---------|-------|-------------|
+| TODO    | TODO  | TODO        |
+
+## 7. Безопасность
+TODO — auth, шифрование, валидация, защита от OWASP top-10.
+
+## 8. Развёртывание
+TODO — где живёт прод, какие сервисы, CI/CD, мониторинг.
 ```
 
-### 7. Summary
+### 7. Copy filled-in examples to `example_docs/`
+
+The user's primary reference for filling in the scaffolds is `<project>/example_docs/`. This folder contains filled-in versions of all five docs for a hypothetical project called **NoteHub** (a web app for notes with tags, full-text search, and sync). The agent reads these as a structural reference when filling in the real scaffolds — it does **not** copy their content into the real files.
+
+**Source:** `~/.claude/templates/project-docs/` — contains `README.md` + 5 filled example docs in Russian.
+
+**Destination:** `<project>/example_docs/`
+
+**Behavior:**
+- If `<project>/example_docs/` does not exist — create it and copy all files from the source.
+- If `<project>/example_docs/` already exists — **skip** with status `skipped (exists)`. Do not overwrite. The user may have customized it.
+
+**Command (when source is present):**
+
+```bash
+mkdir -p example_docs
+cp ~/.claude/templates/project-docs/*.md example_docs/
+```
+
+Files copied:
+- `example_docs/README.md` — explanation of how to use these examples
+- `example_docs/CONTEXT.md`
+- `example_docs/DEVELOPMENT.md`
+- `example_docs/ROADMAP.md`
+- `example_docs/REQUIREMENTS.md`
+- `example_docs/ARCHITECTURE.md`
+
+### 8. Add `example_docs/` to `.gitignore`
+
+The `example_docs/` folder is identical for every project (it's copied from the same templates), so committing it adds noise to the repository. Add it to `.gitignore` by default so each project can commit it explicitly if the team wants to keep it under version control.
+
+**Behavior:**
+- If `.gitignore` does not exist — create it with the block below.
+- If `.gitignore` exists and already contains `example_docs/` — skip (reported as "already ignored").
+- If `.gitignore` exists and does not contain `example_docs/` — append the block below with a blank line separator.
+
+**Block to add:**
+
+```
+# Reference docs (copied from ~/.claude/templates/project-docs/)
+# Same for every project — not worth committing. Remove this entry if your team wants to version it.
+example_docs/
+```
+
+### 9. Summary
+
 Print a table showing:
 
 | Item | Type | Status |
@@ -274,14 +389,19 @@ Print a table showing:
 | DEVELOPMENT.md | scaffold | created / skipped (exists) |
 | CONTEXT.md | scaffold | created / skipped (exists) |
 | ROADMAP.md | scaffold | created / skipped (exists) |
+| REQUIREMENTS.md | scaffold | created / skipped (exists) |
 | ARCHITECTURE.md | scaffold | created / skipped (exists) |
+| example_docs/ | reference-copy | copied / skipped (exists) |
+| .gitignore entry | gitignore | added / already ignored |
 
-Close with a one-line next step: `Run /opsx:explore or start a brainstorming session to fill in the TODO sections.`
+Close with a one-line next step (in Russian):
+
+> Запусти `/opsx:explore` или начни brainstorming-сессию, чтобы заполнить TODO-секции. Референсы в `example_docs/`.
 
 ## Flags
 
 - `--dry-run` — show what would be installed or written, without making changes
-- `--tessl-only` — only install tessl-managed skills (skip copy + rules block + scaffolds)
-- `--copy-only` — only copy local skills (skip tessl + rules block + scaffolds)
+- `--tessl-only` — only install tessl-managed skills (skip copy + rules block + scaffolds + examples)
+- `--copy-only` — only copy local skills (skip tessl + rules block + scaffolds + examples)
 - `--rules-only` — only write the OpenSpec + Superpowers composition rules block to `AGENTS.md`, skip skill installation and doc scaffolds
-- `--docs-only` — only scaffold the five project docs (`AGENTS.md`, `CLAUDE.md` proxy, `DEVELOPMENT.md`, `CONTEXT.md`, `ROADMAP.md`, `ARCHITECTURE.md`), skip everything else
+- `--docs-only` — only scaffold the project docs (`AGENTS.md`, `CLAUDE.md` proxy, `DEVELOPMENT.md`, `CONTEXT.md`, `ROADMAP.md`, `REQUIREMENTS.md`, `ARCHITECTURE.md`), copy `example_docs/`, update `.gitignore`, skip everything else
