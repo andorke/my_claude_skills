@@ -101,6 +101,11 @@ The goal: every project should have an explicit rule block that tells the agent 
 - `DEVELOPMENT.md` фиксируется один раз на выбор стека. Обновляй только при смене стека, структуры или паттернов кода — не per-feature.
 - `REQUIREMENTS.md` — зафиксированные функциональные (FR) и нефункциональные (NFR) требования. Обновляй при добавлении / удалении / изменении требований, не при реализации.
 
+### Управление потоком изменений
+- **Не** запускай автоматически следующий этап (propose/apply/archive) после завершения текущего. Пользователь сам управляет потоком через команды `/opsx:propose`, `/opsx:apply`, `/opsx:archive`. Завершил текущий этап — доложи результат и жди команды.
+- **Не** запускай Superpowers скиллы (brainstorming, writing-plans и др.) для автоматического перехода к следующему change.
+- Subagent'ы могут запускаться только по явному запросу пользователя.
+
 ### Границы (что НЕ делать)
 - **Не** используй Superpowers `writing-plans` для планирования на уровне фичи, когда активен OpenSpec change. `tasks.md` — авторитетный план фичи. `writing-plans` — только для высокоуровневых фаз `ROADMAP.md`.
 - **Не** запускай Superpowers `brainstorming` во время `/opsx:apply`. Brainstorming — это фаза до `/opsx:propose`.
